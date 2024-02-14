@@ -1,0 +1,141 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                Golden Time EA   |
+//|                                 Developed by Forex Robot Easy Team|
+//|                                              www.forexroboteasy.com|
+//+------------------------------------------------------------------+
+
+// Global variables
+int supportLevel = 0;
+int resistanceLevel = 0;
+
+//+------------------------------------------------------------------+
+//| Custom function to identify support and resistance areas         |
+//+------------------------------------------------------------------+
+void IdentifySupportResistance()
+{
+   // Your logic to identify support and resistance areas here
+   // Store the identified levels in the global variables
+   supportLevel = 1.2000;
+   resistanceLevel = 1.2200;
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to place pending orders based on the levels      |
+//+------------------------------------------------------------------+
+void PlacePendingOrders()
+{
+   // Your logic to place pending orders based on support and resistance levels here
+   // Place pending buy order at support level
+   OrderSend(Symbol(), OP_BUYSTOP, 0.01, supportLevel, 10, 0, 0, 'Buy Stop', 0, 0, Green);
+
+   // Place pending sell order at resistance level
+   OrderSend(Symbol(), OP_SELLSTOP, 0.01, resistanceLevel, 10, 0, 0, 'Sell Stop', 0, 0, Red);
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to determine market entry                        |
+//+------------------------------------------------------------------+
+void DetermineMarketEntry()
+{
+   // Your logic to determine market entry based on support and resistance levels here
+   // Enter the market if price breaks above resistance level
+   if (Bid > resistanceLevel)
+   {
+      OrderSend(Symbol(), OP_BUY, 0.01, Ask, 10, 0, 0, 'Buy', 0, 0, Blue);
+   }
+   // Enter the market if price breaks below support level
+   else if (Ask < supportLevel)
+   {
+      OrderSend(Symbol(), OP_SELL, 0.01, Bid, 10, 0, 0, 'Sell', 0, 0, Orange);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to optimize risk-to-reward ratio                 |
+//+------------------------------------------------------------------+
+void OptimizeRiskToReward()
+{
+   // Your logic to optimize risk-to-reward ratio here
+   // Calculate target price based on support and resistance levels
+   double targetPrice = resistanceLevel + (resistanceLevel - supportLevel);
+
+   // Modify the stop loss and take profit levels of existing orders
+   for (int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES))
+      {
+         if (OrderMagicNumber() == MagicNumber && OrderSymbol() == Symbol())
+         {
+            OrderModify(OrderTicket(), OrderOpenPrice(), targetPrice, OrderTakeProfit(), 0, Green);
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to add safety features                            |
+//+------------------------------------------------------------------+
+void AddSafetyFeatures()
+{
+   // Your logic to add safety features here
+   // Implement stop loss and take profit for all orders
+   for (int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES))
+      {
+         if (OrderMagicNumber() == MagicNumber && OrderSymbol() == Symbol())
+         {
+            double stopLoss = OrderOpenPrice() - 100 * Point;
+            double takeProfit = OrderOpenPrice() + 200 * Point;
+            OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, takeProfit, 0, Blue);
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to execute trading strategy                      |
+//+------------------------------------------------------------------+
+void ExecuteTradingStrategy()
+{
+   IdentifySupportResistance();
+   PlacePendingOrders();
+   DetermineMarketEntry();
+   OptimizeRiskToReward();
+   AddSafetyFeatures();
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor start function                                     |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if it's the golden time to execute the trading strategy
+   if (Hour() == 12 && Minute() == 0)
+   {
+      ExecuteTradingStrategy();
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor initialization function                           |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Set the appropriate values for the expert advisor
+   supportLevel = 0;
+   resistanceLevel = 0;
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert Advisor deinitialization function                         |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Perform necessary clean-up tasks before the expert advisor is shut down
+}
+
+//+------------------------------------------------------------------+
